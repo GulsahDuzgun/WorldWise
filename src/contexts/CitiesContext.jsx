@@ -2,7 +2,7 @@ import { useContext, useReducer } from "react";
 import { createContext } from "react";
 import { useEffect } from "react";
 
-const BASE_URL = "http://localhost:1227/";
+const BASE_URL = "https://world-wise-gldn.netlify.app/.netlify/functions/api/";
 const CitiesContext = createContext();
 
 const initialState = {
