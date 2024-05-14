@@ -1,0 +1,40 @@
+{
+  "cities": [
+    {
+      "id": "64cb",
+      "cityName": "Vang",
+      "country": "Norway",
+      "date": "2024-05-10T17:27:52.427Z",
+      "notes": "",
+      "position": {
+        "lat": "61.18562468142283",
+        "lng": "8.789062500000002"
+      },
+      "emoji": "NO"
+    },
+    {
+      "id": "cdfa",
+      "cityName": "Ripley",
+      "country": "United Kingdom of Great Britain and Northern Ireland (the)",
+      "date": "2024-05-10T17:51:39.564Z",
+      "notes": "",
+      "position": {
+        "lat": "52.93539665862318",
+        "lng": "-1.5161132812500002"
+      },
+      "emoji": "GB"
+    },
+    {
+      "id": "d41b",
+      "cityName": "Istanbul",
+      "country": "Turkiye",
+      "date": "2024-05-11T07:59:18.714Z",
+      "notes": "",
+      "position": {
+        "lat": "41.02964338716641",
+        "lng": "28.7841796875"
+      },
+      "emoji": "TR"
+    }
+  ]
+}
