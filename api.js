@@ -1,18 +1,18 @@
-import data from "./db.json";
-import fs from "fs";
+import fs from "fs/promises";
 
-function readDataFromFile() {
-  const data = fs.readFile("./db.json");
+async function readDataFromFile() {
+  const data = await fs.readFile("./db.json", "utf-8");
   return JSON.parse(data);
 }
 
-function writeDatatoFile() {
-  fs.writeFileSync("./db.json", JSON.stringify(data, null, 2));
+async function writeDatatoFile(data) {
+  await fs.writeFile("./db.json", JSON.stringify(data, null, 2));
 }
 
-const handler = async (event) => {
+export const handler = async (event) => {
   if (event.httpMethod === "GET") {
     try {
+      const data = await readDataFromFile();
       return {
         statusCode: 200,
         body: JSON.stringify(data),
@@ -26,10 +26,10 @@ const handler = async (event) => {
   } else if (event.httpMethod === "POST") {
     try {
       const requestBody = JSON.parse(event.body);
-      let existingData = readDataFromFile();
+      let existingData = await readDataFromFile();
       existingData.push(requestBody);
 
-      writeDatatoFile(existingData);
+      await writeDatatoFile(existingData);
 
       return {
         statusCode: 200,
@@ -38,30 +38,40 @@ const handler = async (event) => {
         }),
       };
     } catch (error) {
-      // Return an error response if there was an issue processing the request
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Failed to process POST request" }),
       };
     }
   } else if (event.httpMethod === "DELETE") {
-    const requestBody = JSON.parse(event.body);
+    try {
+      const requestBody = JSON.parse(event.body);
+      let existingData = await readDataFromFile();
+      const indexToDelete = existingData.findIndex(
+        (item) => item.id === requestBody.id
+      );
 
-    let existingData = readDataFromFile();
-    const indexToDelete = existingData.findIndex(
-      (item) => item.id === requestBody.id
-    );
+      if (indexToDelete === -1) {
+        return {
+          statusCode: 404,
+          body: JSON.stringify({ error: "Data not found" }),
+        };
+      }
 
-    if (indexToDelete === -1) {
+      existingData.splice(indexToDelete, 1);
+      await writeDatatoFile(existingData);
+
       return {
-        statusCode: 404,
-        body: JSON.stringify({ error: "Data not found" }),
+        statusCode: 200,
+        body: JSON.stringify({
+          message: "DELETE request processed successfully",
+        }),
+      };
+    } catch (error) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Failed to process DELETE request" }),
       };
     }
-
-    existingData.splice(indexToDelete, 1);
-    writeDatatoFile(existingData);
   }
 };
-
-export default handler;
