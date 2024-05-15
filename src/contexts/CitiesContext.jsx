@@ -1,8 +1,9 @@
 import { useContext, useReducer } from "react";
 import { createContext } from "react";
 import { useEffect } from "react";
+import jsonData from "../../db.json";
 
-const BASE_URL = "https://world-wise-gldn.netlify.app/.netlify/functions/api/";
+const BASE_URL = "/.netlify/functions/";
 const CitiesContext = createContext();
 
 const initialState = {
@@ -13,27 +14,50 @@ const initialState = {
 };
 
 function reducer(state, action) {
+  let tempState = {};
+
   switch (action.type) {
-    case "loading":
-      return { ...state, isLoading: true };
+    case "loading": {
+      tempState = JSON.parse(localStorage.getItem("citiesList"));
+
+      if (tempState.length === 0) {
+        localStorage.setItem("citiesList", JSON.stringify(jsonData.cities));
+        tempState.city = [...jsonData.cities];
+      }
+      return {
+        ...state,
+        city: [...tempState.city],
+        isLoading: true,
+      };
+    }
     case "error":
       return { ...state, errorMessage: action.payload, isLoading: false };
-    case "load/cities":
-      return { ...state, city: action.payload, isLoading: false };
+    case "load/cities": {
+      localStorage.setItem("citiesList", JSON.stringify({ city: [] }));
+      tempState = { ...state, city: action.payload, isLoading: false };
+
+      return tempState;
+    }
     case "load/currentCity":
       return { ...state, currentCity: action.payload, isLoading: false };
-    case "create/city":
-      return {
+    case "create/city": {
+      tempState = {
         ...state,
         city: [...state.city, action.payload],
         isLoading: false,
       };
-    case "delete/city":
-      return {
+      localStorage.setItem("citiesList", JSON.stringify(tempState));
+      return tempState;
+    }
+    case "delete/city": {
+      tempState = {
         ...state,
         isLoading: false,
         city: state.city.filter((c) => c.id !== action.payload),
       };
+      localStorage.setItem("citiesList", JSON.stringify(tempState));
+      return { ...tempState };
+    }
     default:
       throw new Error("Unknown action type.");
   }
@@ -49,7 +73,7 @@ function CitiesProvider({ children }) {
     async function fetchCities() {
       try {
         dispatch({ type: "loading" });
-        const res = await fetch(`${BASE_URL}cities`);
+        const res = await fetch(`${BASE_URL}loadCities`);
         const data = await res.json();
         dispatch({ type: "load/cities", payload: data });
       } catch {
@@ -66,9 +90,13 @@ function CitiesProvider({ children }) {
   async function getCityDetail(id) {
     try {
       dispatch({ type: "loading" });
-      const data = await fetch(`${BASE_URL}cities/${id}`);
-      const res = await data.json();
-      dispatch({ type: "load/currentCity", payload: res });
+
+      const cities = JSON.parse(localStorage.getItem("citiesList"));
+      const city = cities.city.filter((c) => c.id === id);
+      console.log(id);
+      console.log(city);
+
+      dispatch({ type: "load/currentCity", payload: city[0] });
     } catch {
       dispatch({
         type: "error",
@@ -81,7 +109,7 @@ function CitiesProvider({ children }) {
   async function createNewCity(newCity) {
     try {
       dispatch({ type: "loading" });
-      const res = await fetch(`${BASE_URL}cities`, {
+      const res = await fetch(`${BASE_URL}createCity`, {
         method: "POST",
         body: JSON.stringify(newCity),
         headers: {
@@ -103,7 +131,7 @@ function CitiesProvider({ children }) {
   async function deleteCity(id) {
     try {
       dispatch({ type: "loading" });
-      await fetch(`${BASE_URL}cities/${id}`, { method: "DELETE" });
+      await fetch(`${BASE_URL}deleteCity/?id=${id}`, { method: "DELETE" });
       dispatch({ type: "delete/city", payload: id });
     } catch {
       dispatch({
