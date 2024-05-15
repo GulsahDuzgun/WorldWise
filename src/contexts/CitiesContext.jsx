@@ -26,7 +26,7 @@ function reducer(state, action) {
       }
       return {
         ...state,
-        city: [...tempState.city],
+        city: tempState ? [...tempState.city] : [],
         isLoading: true,
       };
     }
