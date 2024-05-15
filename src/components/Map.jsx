@@ -66,7 +66,10 @@ function Map() {
           >
             <Popup>
               {cElement.cityName}
-              <img alt="flag" src={cElement.url} />
+              <img
+                alt="flag"
+                src={`https://flagcdn.com/16x12/${cElement.emoji.toLowerCase()}.png`}
+              />
             </Popup>
           </Marker>
         ))}
