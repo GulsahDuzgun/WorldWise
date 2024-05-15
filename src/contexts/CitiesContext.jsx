@@ -20,7 +20,7 @@ function reducer(state, action) {
     case "loading": {
       tempState = JSON.parse(localStorage.getItem("citiesList"));
 
-      if (tempState.length === 0) {
+      if (tempState?.length === 0) {
         localStorage.setItem("citiesList", JSON.stringify(jsonData.cities));
         tempState.city = [...jsonData.cities];
       }
@@ -93,8 +93,6 @@ function CitiesProvider({ children }) {
 
       const cities = JSON.parse(localStorage.getItem("citiesList"));
       const city = cities.city.filter((c) => c.id === id);
-      console.log(id);
-      console.log(city);
 
       dispatch({ type: "load/currentCity", payload: city[0] });
     } catch {
