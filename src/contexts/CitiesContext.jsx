@@ -53,7 +53,7 @@ function reducer(state, action) {
       tempState = {
         ...state,
         isLoading: false,
-        city: state.city.filter((c) => c.id !== action.payload),
+        city: state?.city.filter((c) => c.id !== action.payload),
       };
       localStorage.setItem("citiesList", JSON.stringify(tempState));
       return { ...tempState };
@@ -92,7 +92,7 @@ function CitiesProvider({ children }) {
       dispatch({ type: "loading" });
 
       const cities = JSON.parse(localStorage.getItem("citiesList"));
-      const city = cities.city.filter((c) => c.id === id);
+      const city = cities?.city.filter((c) => c.id === id);
 
       dispatch({ type: "load/currentCity", payload: city[0] });
     } catch {
